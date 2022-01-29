@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\Products_383.csproj": {}
+    "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\Products_383.csproj": {}
   },
   "projects": {
-    "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\Products_383.csproj": {
+    "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\Products_383.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\Products_383.csproj",
+        "projectUniqueName": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\Products_383.csproj",
         "projectName": "Products_383",
-        "projectPath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\Products_383.csproj",
+        "projectPath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\Products_383.csproj",
         "packagesPath": "C:\\Users\\gerra\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\obj\\",
+        "outputPath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",

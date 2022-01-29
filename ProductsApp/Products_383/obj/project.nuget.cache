@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "ouM0q2+b3M3ItJU/ZQf3+mfK16uF1fmKhpl4jsuBYxZWNad/YiVqiJurMyp1l42jW+mo1GANFWt4f8kqHdm3dw==",
+  "dgSpecHash": "Aal+IB5f3lHLOUiVlg/uWGSpzFzLlwcpEKQMF+sM1WAlzSgJJzONuMRluSznoQkdLoUvN5Ep3uxektQcIHlOng==",
   "success": true,
-  "projectFilePath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\Phase2\\ProductsApp\\Products_383\\Products_383.csproj",
+  "projectFilePath": "C:\\Users\\gerra\\Documents\\School\\Computer_Science\\CMPS_383\\CMPS_383_Github\\ProductsApp\\Products_383\\Products_383.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\gerra\\.nuget\\packages\\microsoft.extensions.apidescription.server\\3.0.0\\microsoft.extensions.apidescription.server.3.0.0.nupkg.sha512",
     "C:\\Users\\gerra\\.nuget\\packages\\microsoft.openapi\\1.2.3\\microsoft.openapi.1.2.3.nupkg.sha512",

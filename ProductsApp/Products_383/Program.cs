@@ -1,3 +1,5 @@
+using Products_383.Features;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -16,10 +18,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-var Products = new List<Products_383.ProductDto>();
+var Products = new List<ProductDto>();
 
 //CREATE
-app.MapPost("/api/Products/New", (Products_383.ProductDto product) =>
+app.MapPost("/api/Products/New", (ProductDto product) =>
 {
     var message = "Please put in a name and description";
 
@@ -36,9 +38,9 @@ app.MapPost("/api/Products/New", (Products_383.ProductDto product) =>
         }
     }
 
-    
-    
-    return Results.Ok(message); 
+
+
+    return Results.Ok(message);
 });
 
 //GET ALL
@@ -62,7 +64,7 @@ app.MapGet("/api/Products/Item/{id}", (int id) =>
 });
 
 // EDIT
-app.MapPut("/api/Producsts/Edit/{id}", (int id, Products_383.ProductDto updatedProduct) =>
+app.MapPut("/api/Producsts/Edit/{id}", (int id, ProductDto updatedProduct) =>
 {
     //var Oldproduct = Products.FirstOrDefault(x => x.ProductId == id);
     //var ValidProducts = Products.Where(x => x.ProductId == id);
@@ -72,14 +74,14 @@ app.MapPut("/api/Producsts/Edit/{id}", (int id, Products_383.ProductDto updatedP
         return Results.NotFound();
     }
     else
-        foreach (Products_383.ProductDto product in Products)
+        foreach (ProductDto product in Products)
         {
-            if(product.ProductId == id)
+            if (product.ProductId == id)
             {
                 product.ProductId = id;
                 product.Name = updatedProduct.Name;
                 product.Description = updatedProduct.Description;
-                product.Price = updatedProduct.Price; 
+                product.Price = updatedProduct.Price;
                 product.SalePrice = updatedProduct.SalePrice;
 
                 var oldProduct = product;
@@ -98,20 +100,20 @@ app.MapDelete("/api/Producsts/Delete/{id}", (int id) =>
     }
     else
         Products.RemoveAll(x => x.ProductId == id);
-        return Results.Ok("Product Deleted..... Hopefully");
+    return Results.Ok("Product Deleted..... Hopefully");
 });
 
 app.Run();
 
-static bool Verification(Products_383.ProductDto product)
+static bool Verification(ProductDto product)
 {
     var isVerified = false;
 
     if (product.Name.Length > 120 || product.Name == "")
-    {        
+    {
         return isVerified;
     }
-    else if (product.Price <= 0)
+    else if (product.Price <= 0 || product.SalePrice <= 0)
     {
         return isVerified;
     }
@@ -123,7 +125,7 @@ static bool Verification(Products_383.ProductDto product)
     return isVerified;
 }
 
-static bool CheckNull(Products_383.ProductDto product)
+static bool CheckNull(ProductDto product)
 {
     var isNulled = false;
 
@@ -139,19 +141,19 @@ static bool CheckNull(Products_383.ProductDto product)
     return isNulled;
 }
 
-static int UniqueId(List<Products_383.ProductDto> products)
+static int UniqueId(List<ProductDto> products)
 {
     var id = 1;
     foreach (var product in products)
     {
-        if(products.Count == 0)
+        if (products.Count == 0)
         {
             return id;
         }
         else
         {
             id++;
-        }                  
+        }
     }
 
     return id;
