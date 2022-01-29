@@ -34,7 +34,7 @@ app.MapPost("/api/Products/New", (ProductDto product) =>
         {
             product.ProductId = UniqueId(Products);
             Products.Add(product);
-            message = "Product created successfully";
+            return Results.Ok(product);
         }
     }
 
@@ -66,29 +66,42 @@ app.MapGet("/api/Products/Item/{id}", (int id) =>
 // EDIT
 app.MapPut("/api/Producsts/Edit/{id}", (int id, ProductDto updatedProduct) =>
 {
-    //var Oldproduct = Products.FirstOrDefault(x => x.ProductId == id);
-    //var ValidProducts = Products.Where(x => x.ProductId == id);
-
-    if (Products.FirstOrDefault(x => x.ProductId == id) is null)
+    var message = "Please put in a name and description";
+    if (CheckNull(updatedProduct) != false)
     {
-        return Results.NotFound();
-    }
-    else
-        foreach (ProductDto product in Products)
+        message = "Please Enter Name Less than 120 Characters and a Price greater than 0";
+
+        if (Verification(updatedProduct) != false)
         {
-            if (product.ProductId == id)
+            if (Products.FirstOrDefault(x => x.ProductId == id) is null)
             {
-                product.ProductId = id;
-                product.Name = updatedProduct.Name;
-                product.Description = updatedProduct.Description;
-                product.Price = updatedProduct.Price;
-                product.SalePrice = updatedProduct.SalePrice;
-
-                var oldProduct = product;
+                return Results.NotFound();
             }
-        }
+            else
+            {
+                foreach (ProductDto product in Products)
+                {
+                    if (product.ProductId == id)
+                    {
+                        product.ProductId = id;
+                        product.Name = updatedProduct.Name;
+                        product.Description = updatedProduct.Description;
+                        product.Price = updatedProduct.Price;
+                        product.SalePrice = updatedProduct.SalePrice;
 
-    return Results.Ok("Product Updated..... Hopefully");
+
+                    }
+                }
+                var newProduct = Products.FirstOrDefault(x => x.ProductId == id);
+
+                return Results.Ok(newProduct);
+            }
+
+        }
+    }
+
+    return Results.Ok(message);
+
 });
 
 // DELETE
