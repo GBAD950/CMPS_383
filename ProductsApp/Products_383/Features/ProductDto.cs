@@ -6,7 +6,7 @@ namespace Products_383.Features
     {
         [Key]
         [Required]
-        public int ProductId { get; set; }
+        public int Id { get; set; }
 
         [Required(ErrorMessage = "Please enter a name")]
         [MaxLength(120)]

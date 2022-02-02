@@ -3,6 +3,8 @@ using Products_383.Features;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -20,8 +22,37 @@ app.UseHttpsRedirection();
 
 var Products = new List<ProductDto>();
 
+var add = new ProductDto
+{
+    Id = 1,
+    Name = "Something Funny",
+    Description = "This is a funny product",
+    Price = 5,
+    SalePrice = 2,
+};
+var add2 = new ProductDto
+{
+    Id = 2,
+    Name = "Something Kinda Funny",
+    Description = "This is a slightly funny product",
+    Price = 15,
+    SalePrice = 12,
+};
+var add3 = new ProductDto
+{
+    Id = 3,
+    Name = "Something LAME",
+    Description = "This is a really LAME product, Please dont buy",
+    Price = 115,
+    SalePrice = 0,
+};
+Products.Add(add);
+Products.Add(add2);
+Products.Add(add3);
+
+
 //CREATE
-app.MapPost("/api/Products/New", (ProductDto product) =>
+app.MapPost("/api/products", (ProductDto product) =>
 {
     var message = "Please put in a name and description";
 
@@ -32,58 +63,37 @@ app.MapPost("/api/Products/New", (ProductDto product) =>
 
         if (isVerified != false)
         {
-            product.ProductId = UniqueId(Products);
+            product.Id = UniqueId(Products);
             Products.Add(product);
-            return Results.Ok(product);
+            return Results.CreatedAtRoute("GetProduct", new { id = product.Id }, product);
         }
     }
 
 
 
-    return Results.Ok(message);
+    return Results.BadRequest(message);
 });
 
-//GET ALL
-app.MapGet("/api/Products/List", () =>
-{
-    var OnSale = Products.Where(x => x.SalePrice != 0 && x.SalePrice < x.Price).ToList();
-    return OnSale;
-})
-.WithName("GetProductList");
-
-// GET ONE
-app.MapGet("/api/Products/Item/{id}", (int id) =>
-{
-    var product = Products.FirstOrDefault(x => x.ProductId == id);
-    if (Products.FirstOrDefault(x => x.ProductId == id) is null)
-    {
-        return Results.NotFound();
-    }
-    else
-        return Results.Ok(product);
-});
 
 // EDIT
-app.MapPut("/api/Producsts/Edit/{id}", (int id, ProductDto updatedProduct) =>
+app.MapPut("/api/products/{id}", (int id, ProductDto updatedProduct) =>
 {
-    var message = "Please put in a name and description";
-    if (CheckNull(updatedProduct) != false)
-    {
-        message = "Please Enter Name Less than 120 Characters and a Price greater than 0";
 
-        if (Verification(updatedProduct) != false)
+    if (Products.FirstOrDefault(x => x.Id == id) != null)
+    {
+        var message = "Please put in a name and description";
+
+        if (CheckNull(updatedProduct) != false)
         {
-            if (Products.FirstOrDefault(x => x.ProductId == id) is null)
-            {
-                return Results.NotFound();
-            }
-            else
+            message = "Please Enter Name Less than 120 Characters and a Price greater than 0";
+
+            if (Verification(updatedProduct) != false)
             {
                 foreach (ProductDto product in Products)
                 {
-                    if (product.ProductId == id)
+                    if (product.Id == id)
                     {
-                        product.ProductId = id;
+                        product.Id = id;
                         product.Name = updatedProduct.Name;
                         product.Description = updatedProduct.Description;
                         product.Price = updatedProduct.Price;
@@ -92,31 +102,102 @@ app.MapPut("/api/Producsts/Edit/{id}", (int id, ProductDto updatedProduct) =>
 
                     }
                 }
-                var newProduct = Products.FirstOrDefault(x => x.ProductId == id);
+                var newProduct = Products.FirstOrDefault(x => x.Id == id);
 
                 return Results.Ok(newProduct);
-            }
 
+            }
         }
+        return Results.BadRequest(message);
     }
 
-    return Results.Ok(message);
+    return Results.NotFound();
 
 });
 
-// DELETE
-app.MapDelete("/api/Producsts/Delete/{id}", (int id) =>
+
+//GET ALL
+app.MapGet("/api/products", () =>
 {
-    if (Products.FirstOrDefault(x => x.ProductId == id) is null)
+    return Results.Ok(Products);
+});
+
+
+
+//GET SALES
+app.MapGet("/api/products/sales", () =>
+{
+    var Sales = new List<ProductDto>();
+    foreach (var product in Products)
+    {
+        if (product.SalePrice != 0)
+        {
+            Sales.Add(product);
+        }
+    }
+    return Sales;
+});
+
+
+//GET BY ID
+app.MapGet("/api/products/{id}", (int id) =>
+{
+
+    var item = Products.FirstOrDefault((x) => x.Id == id);
+    if (item == null)
+    {
+        return Results.NotFound(id);
+    }
+    else
+    {
+        return Results.Ok(item);
+    }
+
+})
+    .WithName("GetProduct");
+
+
+// DELETE
+app.MapDelete("/api/products/{id}", (int id) =>
+{
+    //var item = Products.FirstOrDefault((x) => x.Id == id);
+    //    if (item != null)
+    //    {
+    //        Products.Remove(item);
+    //        return Results.Ok(id);
+    //    }
+    //    else return Results.NotFound(id);
+
+    if (Products.FirstOrDefault(x => x.Id == id) is null)
     {
         return Results.NotFound();
     }
     else
-        Products.RemoveAll(x => x.ProductId == id);
+        Products.RemoveAll(x => x.Id == id);
     return Results.Ok("Product Deleted..... Hopefully");
 });
 
+
 app.Run();
+
+
+static int UniqueId(List<ProductDto> products)
+{
+    var id = 1;
+    foreach (var product in products)
+    {
+        if (products.Count == 0)
+        {
+            return id;
+        }
+        else
+        {
+            id++;
+        }
+    }
+
+    return id;
+}
 
 static bool Verification(ProductDto product)
 {
@@ -126,7 +207,7 @@ static bool Verification(ProductDto product)
     {
         return isVerified;
     }
-    else if (product.Price <= 0 || product.SalePrice <= 0)
+    else if (product.Price <= 0 || product.SalePrice < 0)
     {
         return isVerified;
     }
@@ -154,31 +235,4 @@ static bool CheckNull(ProductDto product)
     return isNulled;
 }
 
-static int UniqueId(List<ProductDto> products)
-{
-    var id = 1;
-    foreach (var product in products)
-    {
-        if (products.Count == 0)
-        {
-            return id;
-        }
-        else
-        {
-            id++;
-        }
-    }
-
-    return id;
-}
-
-//public class ProductDto
-//{
-//    public int ProductId { get; set; }
-//    public string Name { get; set; }
-//    public string Description { get; set; }
-//    public decimal Price { get; set; }
-//    public decimal? SalePrice { get; set; }
-
-//}
-
+public partial class Program { }
