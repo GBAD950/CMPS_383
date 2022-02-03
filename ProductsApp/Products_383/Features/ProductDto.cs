@@ -16,7 +16,7 @@ namespace Products_383.Features
         public string Description { get; set; }
 
         [Required]
-        [Range(1, int.MinValue, ErrorMessage = "Please enter a price greater than {1}")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please enter a price greater than {1}")]
         public decimal Price { get; set; }
 
         public decimal? SalePrice { get; set; }
