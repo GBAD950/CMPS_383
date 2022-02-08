@@ -1,0 +1,54 @@
+image: mcr.microsoft.com/dotnet/sdk:6.0
+
+options:
+  max-time: 15
+pipelines:
+  default:
+    - step:
+        name: "Build/Test"
+        script:
+          - sleep 10
+          - dotnet test SP22.P03.Tests.Web
+        services:
+          - sqlserver
+  branches:
+    master:
+      - step:
+          name: "Build/Test/Publish Web"
+          script:
+            - apt-get update && apt-get install --yes zip
+            - sleep 10
+            - dotnet test SP22.P03.Tests.Web
+            - dotnet publish SP22.P03.Web --output publish
+            - cd publish && zip -r web-$BITBUCKET_BUILD_NUMBER.zip .
+          artifacts:
+            - publish/*.zip
+          services:
+            - sqlserver
+      - step:
+          name: "Deploy to Azure"
+          deployment: test
+          script:
+            - pipe: microsoft/azure-web-apps-deploy:1.0.0
+              variables:
+                AZURE_APP_ID: $AZURE_APP_ID
+                AZURE_PASSWORD: $AZURE_PASSWORD
+                AZURE_TENANT_ID: $AZURE_TENANT_ID
+                AZURE_RESOURCE_GROUP: "sp22-p03-g##"
+                AZURE_APP_NAME: "selu383-sp22-p03-g##"
+                ZIP_FILE: "publish/web-$BITBUCKET_BUILD_NUMBER.zip"
+      - step:
+          name: "Check API Health"
+          script:
+            - curl -s https://selu383-sp22-p03-g##.azurewebsites.net/api/products
+            - sleep 10
+            - curl -sSf https://selu383-sp22-p03-g##.azurewebsites.net/api/products
+
+definitions:
+  services:
+    sqlserver:
+      image: mcr.microsoft.com/mssql/server:2019-CU15-ubuntu-20.04
+      memory: 2048
+      variables:
+        ACCEPT_EULA: Y
+        SA_PASSWORD: Password123!
