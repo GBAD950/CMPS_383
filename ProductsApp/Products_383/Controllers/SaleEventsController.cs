@@ -8,12 +8,12 @@ namespace Products_383.Controllers
 {
     [Route("api/sale-events")]
     [ApiController]
-    public class SaleEvents : ControllerBase
+    public class SaleEventsController : ControllerBase
     {
         private readonly DataContext db;
         private readonly string url = "http://localhost";
 
-        public SaleEvents(DataContext db)
+        public SaleEventsController(DataContext db)
         {
             this.db = db;
         }
