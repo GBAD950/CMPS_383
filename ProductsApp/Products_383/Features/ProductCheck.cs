@@ -1,4 +1,6 @@
-﻿namespace Products_383.Features
+﻿using Products_383.Features.Products;
+
+namespace Products_383.Features
 {
     public class ProductCheck
     {

@@ -1,6 +1,10 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Products_383.Data;
+using Products_383.Data.Models;
 using Products_383.Features;
+using Products_383.Features.Products;
+using System.Linq.Expressions;
 
 namespace Products_383.Controllers
 {
@@ -8,46 +12,61 @@ namespace Products_383.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        public static List<ProductDto> Products = new List<ProductDto>()
-        {
-                new ProductDto
-                {
-                    Id = 1,
-                    Name = "Something Funny",
-                    Description = "This is a funny product",
-                    Price = 5,
-                    SalePrice = 2,
-                },
-                new ProductDto
-                {
-                    Id = 2,
-                    Name = "Something Kinda Funny",
-                    Description = "This is a slightly funny product",
-                    Price = 15,
-                    SalePrice = 12,
-                },
-                new ProductDto
-                {
-                    Id = 3,
-                    Name = "Something LAME",
-                    Description = "This is a really LAME product, Please dont buy",
-                    Price = 115,
-                    SalePrice = 0,
-                }
+        private readonly DataContext db;
+        private readonly string url = "http://localhost";
 
-        };
+        public ProductsController(DataContext db)
+        {
+            this.db = db;
+        }
+
+        public static Expression<Func<Product, ProductDto>> MapperMethod()
+        {
+            return product => new ProductDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price
+
+            };
+        }
 
         [HttpGet]
-        public ActionResult<ProductDto[]> GetAllProducts()
+        public IEnumerable<ProductDto> GetAllProducts()
         {
-            return Ok(Products.ToArray());
+            return db.Set<Product>().Select(MapperMethod()).ToList();
+        }
+
+        [HttpGet]
+        [Route("sales")]
+        public IEnumerable<ProductDto> GetAllSaleProducts()
+        {
+            // Not Quite Working yet
+
+
+            //var saleList = ( from Saleproducts in db.SaleEventsProduct
+            //                 join products in db.Products on Saleproducts.ProductId equals products.Id
+            //                 join Saleevents in db.SaleEvents on Saleproducts.SaleEventID equals Saleevents.Id
+            //                 where Saleevents.StartUtc  >= DateTime.UtcNow
+            //                 select new
+            //                 {
+            //                     Name = products.Name,
+            //                     Description = products.Description,
+            //                     SalePrice = Saleproducts.SaleEventPrice,
+            //                 }
+
+
+            //    ).ToList();
+
+            return db.Set<Product>().Select(MapperMethod()).ToList();
         }
 
         [HttpGet]
         [Route("{id}")]
         public ActionResult<ProductDto> GetProduct(int id)
         {
-            var item = Products.FirstOrDefault((x) => x.Id == id);
+            var item = db.Set<Product>().Where(x => x.Id == id).Select(MapperMethod()).FirstOrDefault();
             if (item == null)
             {
                 return NotFound(id);
@@ -56,70 +75,55 @@ namespace Products_383.Controllers
             {
                 return Ok(item);
             }
-        }   
+        }
 
         [HttpPost]
-        public ActionResult CreateProduct(ProductDto product)
+        public ActionResult<ProductDto> CreateProduct(ProductDto product)
         {
-            var message = "Please put in a name and description";
-
-            if (ProductCheck.CheckNull(product) != false)
+            var item = db.Set<Product>().Add(new Product()
             {
-                var isVerified = ProductCheck.Verification(product);
-                message = "Please Enter Name Less than 120 Characters and a Price greater than 0";
 
-                if (isVerified != false)
-                {
-                    product.Id = ProductCheck.UniqueId(Products);
-                    Products.Add(product);
-                    return CreatedAtRoute("GetProduct", new { id = product.Id }, product);
-                }
-            }
+                Name = product.Name,
+                Description = product.Description,
+                Price = product.Price
 
+            });
+            db.SaveChanges();
+            product.Id = item.Entity.Id;
 
-
-            return BadRequest(message);
+            return Created($"{url}/api/products/{item.Entity.Id}", product);
 
         }
 
-        [HttpPut]
-        [Route("{id}")]
-        public ActionResult UpdateProduct(int id, ProductDto updatedProduct)
+        [HttpPut("{id}")]
+        public ActionResult<ProductDto> Update(int id, ProductDto product)
         {
-
-            if (Products.FirstOrDefault(x => x.Id == id) != null)
+            var item = db.Set<Product>().Where(x => x.Id == id).FirstOrDefault();
+            if (item == null)
             {
-                var message = "Please put in a name and description";
+                return NotFound();
+            }
+            item.Name = product.Name;
+            item.Description = product.Description;
+            item.Price = product.Price;
+            db.SaveChanges();
+            return Ok();
 
-                if (ProductCheck.CheckNull(updatedProduct) != false)
-                {
-                    message = "Please Enter Name Less than 120 Characters and a Price greater than 0";
+        }
 
-                    if (ProductCheck.Verification(updatedProduct) != false)
-                    {
-                        foreach (ProductDto product in Products)
-                        {
-                            if (product.Id == id)
-                            {
-                                product.Id = id;
-                                product.Name = updatedProduct.Name;
-                                product.Description = updatedProduct.Description;
-                                product.Price = updatedProduct.Price;
-                                product.SalePrice = updatedProduct.SalePrice;
-
-
-                            }
-                        }
-                        var newProduct = Products.FirstOrDefault(x => x.Id == id);
-
-                        return Ok(newProduct);
-
-                    }
-                }
-                return BadRequest(message);
+        [HttpDelete]
+        public ActionResult<ProductDto> Delete(int id)
+        {
+            var item = db.Set<Product>().Where(x => x.Id == id).FirstOrDefault();
+            if (item == null)
+            {
+                return NotFound();
             }
 
-            return NotFound();
+            db.Set<Product>().Remove(item);
+            db.SaveChanges();
+
+            return Ok();
         }
 
     }
